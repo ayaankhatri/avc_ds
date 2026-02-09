@@ -1,8 +1,18 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Mail, Phone, MapPin } from "lucide-react"
+import { useTheme } from "next-themes"
+import { useEffect, useState } from "react"
 
 export function Footer() {
+  const { theme, resolvedTheme } = useTheme()
+  const currentTheme = theme === "system" ? resolvedTheme : theme
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   return (
     <footer className="border-t bg-card text-card-foreground">
       <div className="mx-auto max-w-7xl px-4 py-12">
@@ -11,10 +21,14 @@ export function Footer() {
           <div className="flex flex-col gap-4">
             <Link href="/" className="flex items-center gap-2.5">
               <Image
-                src="/light-logo.png"
+                src={
+                currentTheme === "dark"
+                  ? "/dark-logo.png"
+                  : "/light-logo.png"
+                }
                 alt="ResQ logo"
-                width={32}
-                height={32}
+                width={36}
+                height={36}
                 className="rounded-lg"
               />
               <span className="font-display text-lg font-bold text-primary">

@@ -22,6 +22,7 @@ import {
   LogOut,
 } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
+import { useTheme } from "next-themes"
 
 const navLinks = [
   { href: "/", label: "Home", icon: Home },
@@ -34,7 +35,14 @@ export function Header() {
   const pathname = usePathname()
   const [user, setUser] = useState<User | null>(null)
   const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const supabase = createClient()
+
+  const { theme, resolvedTheme } = useTheme()
+  const currentTheme = theme === "system" ? resolvedTheme : theme
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const getUser = async () => {
@@ -43,6 +51,7 @@ export function Header() {
       } = await supabase.auth.getUser()
       setUser(user)
     }
+
     getUser()
 
     const {
@@ -65,19 +74,26 @@ export function Header() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
-          <Image
-            src="/light-logo.png"
-            alt="ResQ logo"
-            width={36}
-            height={36}
-            className="rounded-lg"
-          />
+          {mounted && (
+            <Image
+              src={
+                currentTheme === "dark"
+                  ? "/dark-logo.png"
+                  : "/light-logo.png"
+              }
+              alt="ResQ logo"
+              width={36}
+              height={36}
+              className="rounded-lg"
+              priority
+            />
+          )}
           <span className="font-display text-xl font-bold tracking-tight text-primary">
             ResQ
           </span>
         </Link>
 
-        {/* Desktop Nav */}
+        {/* Desktop Navigation */}
         <nav className="hidden items-center gap-1 md:flex">
           {navLinks.map((link) => (
             <Link
@@ -97,6 +113,7 @@ export function Header() {
         {/* Right Side */}
         <div className="flex items-center gap-2">
           <ThemeToggle />
+
           <div className="hidden items-center gap-2 md:flex">
             {user ? (
               <div className="flex items-center gap-2">
@@ -130,8 +147,10 @@ export function Header() {
                 <span className="sr-only">Open menu</span>
               </Button>
             </SheetTrigger>
+
             <SheetContent side="right" className="w-72">
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+
               <div className="mt-8 flex flex-col gap-2">
                 {navLinks.map((link) => {
                   const Icon = link.icon
@@ -151,7 +170,9 @@ export function Header() {
                     </Link>
                   )
                 })}
+
                 <div className="my-3 border-t" />
+
                 {user ? (
                   <Button
                     variant="outline"
@@ -166,7 +187,10 @@ export function Header() {
                 ) : (
                   <div className="flex flex-col gap-2">
                     <Link href="/auth/login" onClick={() => setOpen(false)}>
-                      <Button variant="outline" className="w-full bg-transparent">
+                      <Button
+                        variant="outline"
+                        className="w-full bg-transparent"
+                      >
                         Sign In
                       </Button>
                     </Link>
